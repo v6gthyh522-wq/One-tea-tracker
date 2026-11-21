@@ -1,0 +1,11 @@
+{
+  "name": "ONETEA Tracker",
+  "short_name": "ONETEA",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f3ef",
+  "theme_color": "#171717",
+  "description": "Учёт продаж, заказов и смен ONETEA"
+}
