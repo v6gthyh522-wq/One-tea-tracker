@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171717">
+<title>ONETEA — Учёт продаж</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#f5f3ef;--card:#fff;--ink:#191919;--muted:#85817b;--line:#ebe8e2;--accent:#d9b8c8;--accent2:#f1e4eb;--green:#287653;--red:#b64a4a;--shadow:0 8px 30px #2420180b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+header{padding:22px 18px 14px;background:var(--bg);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;justify-content:space-between}.brand b{font-size:20px;letter-spacing:.16em}.brand span{font-size:11px;color:var(--muted);letter-spacing:.12em}
+main{padding:0 16px 20px;max-width:720px;margin:auto}.date{color:var(--muted);font-size:13px;margin:8px 2px 14px}
+.hero{background:#1b1b1b;color:white;border-radius:22px;padding:20px;box-shadow:var(--shadow)}
+.hero small{color:#c9c5c0;font-size:12px}.total{font-size:34px;font-weight:750;letter-spacing:-.04em;margin:7px 0 16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#ffffff12;border:1px solid #ffffff1a;border-radius:14px;padding:12px}.stat span{display:block;color:#c9c5c0;font-size:11px;margin-bottom:5px}.stat strong{font-size:17px}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 11px}.section-title h2{font-size:17px;margin:0}.muted{color:var(--muted);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.product{border:1px solid var(--line);background:white;border-radius:15px;padding:13px;text-align:left;min-height:76px;color:var(--ink);cursor:pointer}
+.product:active{transform:scale(.98);background:var(--accent2)}.product b{display:block;font-size:14px}.product small{color:var(--muted);display:block;margin-top:6px}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:10;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));padding:8px 5px calc(8px + env(safe-area-inset-bottom))}
+.tab{border:0;background:none;color:var(--muted);font-size:10px;padding:7px 1px;cursor:pointer;white-space:nowrap}.tab.active{color:var(--ink);font-weight:700}.tab i{display:block;font-style:normal;font-size:19px;margin-bottom:3px}
+.page{display:none}.page.active{display:block}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}
+.row-title{font-weight:600;font-size:14px}.row-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.money{font-weight:700;white-space:nowrap}.pill{font-size:10px;border-radius:20px;padding:5px 8px;background:var(--accent2)}
+button,.btn{font:inherit}.primary{width:100%;border:0;border-radius:14px;background:var(--ink);color:white;padding:15px;font-weight:700;cursor:pointer}.secondary{border:1px solid var(--line);background:white;border-radius:12px;padding:10px 12px;cursor:pointer}.danger{color:var(--red);border-color:#f0dada}
+input,select,textarea{font:inherit;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;color:var(--ink);width:100%;outline:none}
+label{font-size:12px;color:var(--muted);display:block;margin:10px 0 6px}
+.cartline{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.qty{display:flex;align-items:center;gap:8px}.qty button{border:1px solid var(--line);background:#fff;border-radius:8px;width:28px;height:28px}
+.totalrow{display:flex;justify-content:space-between;font-weight:800;font-size:20px;padding:15px 0}.changebox{background:var(--accent2);border-radius:13px;padding:12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:13px}.changebox b{font-size:19px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions>*{flex:1}
+.empty{text-align:center;color:var(--muted);padding:24px 10px;font-size:13px}
+.filters{display:flex;gap:8px;align-items:center;margin-bottom:10px}.filters input{flex:1}
+.hidden{display:none!important}
+.notice{font-size:11px;color:var(--muted);line-height:1.45;margin:12px 2px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr)}}
+
+#authGate{position:fixed;inset:0;z-index:100;background:#f5f3ef;display:none;align-items:center;justify-content:center;padding:22px}
+.auth-card{width:min(100%,390px);background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.auth-card h2{margin:0 0 7px;font-size:22px}.auth-card p{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 14px}
+#connectionState{font-size:10px;color:var(--muted);letter-spacing:.04em}#signOutBtn{display:none;padding:7px 9px;font-size:11px}
+#bubbleMenuModal{display:none;position:fixed;inset:0;z-index:50;background:#17171766;align-items:flex-end;justify-content:center;padding:12px}
+#bubbleMenuModal.open{display:flex}.bubble-sheet{width:min(100%,900px);max-height:90vh;overflow:auto;background:var(--bg);border-radius:22px;padding:17px;box-shadow:0 18px 60px #0003}
+.bubble-head{position:sticky;top:-17px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0 13px;z-index:2}
+.bubble-head h2{font-size:18px;margin:0}.bubble-categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.bubble-category{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px;min-width:0}
+.bubble-category h3{font-size:13px;margin:0 0 9px}.bubble-flavours{display:grid;gap:6px}
+.bubble-flavour{border:1px solid var(--line);background:#fff;border-radius:10px;text-align:left;padding:9px;font-size:12px;color:var(--ink)}
+.bubble-flavour span{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+#bubbleMenuAdded{font-size:11px;color:var(--green);min-height:15px}
+@media(min-width:650px){#bubbleMenuModal{align-items:center}.bubble-categories{grid-template-columns:repeat(3,minmax(0,1fr))}.bubble-sheet{max-height:85vh}}
+
+
+.shift-card{margin-bottom:10px}.shift-orders{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.shift-order{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}
+.reconcile-good{color:var(--green)}.reconcile-bad{color:var(--red)}.reconcile-diff{font-size:25px;font-weight:800;margin:8px 0}
+@media(max-width:370px){.tab{font-size:9px}.tab i{font-size:17px}}
+</style>
+</head>
+<body>
+<div id="authGate" role="dialog" aria-modal="true"><div class="auth-card"><h2>Вход в ONETEA</h2><p>Войди под своей учётной записью сотрудника. Заказы и смены общие для всей команды.</p><label>Email</label><input id="authEmail" type="email" autocomplete="username" placeholder="employee@email.com"><label>Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Пароль"><button class="primary" style="margin-top:14px" onclick="signInEmployee()">Войти</button><div id="authMessage" class="notice" aria-live="polite"></div></div></div>
+<div id="bubbleMenuModal" aria-hidden="true" onclick="if(event.target===this)closeBubbleMenu()"><div class="bubble-sheet"><div class="bubble-head"><div><h2 id="bubbleMenuTitle">Выбери вкус</h2><div id="bubbleMenuAdded"></div></div><button class="secondary" onclick="closeBubbleMenu()">Готово ✕</button></div><div id="bubbleMenuGrid" class="bubble-categories"></div></div></div>
+
+<header><div class="brand"><b>oneTea</b><div style="display:flex;align-items:center;gap:8px"><span id="connectionState">SUPABASE · ПРОВЕРКА</span><button id="signOutBtn" class="secondary" onclick="signOutEmployee()">Выйти</button></div></div></header>
+<main>
+<section id="dashboard" class="page active">
+<div class="date" id="todayLabel"></div>
+<div class="hero"><small>ПРОДАЖИ СЕГОДНЯ</small><div class="total" id="todayTotal">0 сом</div>
+<div class="stats"><div class="stat"><span>НАЛИЧНЫЕ</span><strong id="cashTotal">0 сом</strong></div><div class="stat"><span>MBANK</span><strong id="mbankTotal">0 сом</strong></div><div class="stat"><span>ЗАКАЗЫ</span><strong id="orderCount">0</strong></div><div class="stat"><span>СРЕДНИЙ ЧЕК</span><strong id="avgCheck">0 сом</strong></div></div></div>
+<div class="section-title"><h2>Смена</h2><span class="pill" id="shiftStatus">Смена закрыта</span></div>
+<div class="card" id="shiftCard"><div class="row"><span>Статус</span><b id="shiftStateText">Не открыта</b></div><div class="row"><span>Начальная касса</span><b id="shiftOpening">0 сом</b></div><div class="row"><span>Открыта</span><b id="shiftStarted">—</b></div><div class="actions" style="margin-top:12px"><button class="primary" id="openShiftBtn" onclick="openShift()">Открыть смену</button><button class="secondary danger" id="closeShiftBtn" onclick="closeShift()" disabled>Закрыть смену</button></div></div>
+<div class="section-title"><h2>Быстро добавить заказ</h2><span class="muted">Нажми на товар</span></div>
+<div class="grid" id="quickProducts"></div>
+<div class="section-title"><h2>Текущий заказ</h2><button class="secondary" onclick="clearCart()">Очистить</button></div>
+<div class="card"><div id="cartItems"><div class="empty">Выбери напитки выше</div></div><div class="totalrow"><span>Итого</span><span id="cartTotal">0 сом</span></div>
+<label>Способ оплаты</label><div class="actions"><button class="secondary" id="cashBtn" onclick="setPay('Наличные')">Наличные ✓</button><button class="secondary" id="mbankBtn" onclick="setPay('MBank')">MBank</button></div>
+<div id="cashTenderWrap"><label>Получено наличными, сом</label><input id="cashTender" type="number" min="0" step="1" inputmode="numeric" placeholder="Например, 500" oninput="renderChange()"><div class="changebox"><span>Сдача</span><b id="changeDue">0 сом</b></div></div><label>Комментарий к заказу (необязательно)</label><input id="orderNote" placeholder="Например, без сахара">
+<button class="primary" style="margin-top:14px" onclick="saveOrder()">Сохранить заказ</button></div>
+<p class="notice">Продажи сохраняются на этом устройстве в браузере. Регулярно выгружай резервную копию в разделе «Ещё».</p>
+</section>
+<section id="queue" class="page">
+<div class="section-title"><h2>Очередь заказов</h2><span class="pill" id="queueCount">0 в очереди</span></div>
+<div class="card"><div class="actions"><button class="secondary" onclick="setQueueMode('time')">По времени</button><button class="secondary" onclick="setQueueMode('manual')">Ручная очередь</button></div><p class="muted">В ручном режиме меняй порядок кнопками ↑ и ↓.</p><div id="queueList"></div></div>
+</section>
+<section id="history" class="page">
+<div class="section-title"><h2>История заказов</h2><span class="muted">Все продажи</span></div>
+<div class="filters"><input type="date" id="historyDate" onchange="renderHistory()"><button class="secondary" onclick="document.getElementById('historyDate').value='';renderHistory()">Все</button></div>
+<div class="card" id="historyList"></div>
+</section>
+<section id="shiftsPage" class="page">
+<div class="section-title"><h2>История смен</h2><span class="muted">Закрытые смены</span></div>
+<div class="filters"><input type="date" id="shiftHistoryDate" onchange="renderShiftHistory()"><button class="secondary" onclick="document.getElementById('shiftHistoryDate').value='';renderShiftHistory()">Все</button></div>
+<div id="shiftHistoryList"></div>
+</section>
+<section id="reconcilePage" class="page">
+<div class="section-title"><h2>Сверка кассы</h2></div>
+<div class="card">
+<label>Закрытая смена</label><select id="reconcileShiftSelect" onchange="renderReconciliation()"></select>
+<div id="reconcileContent"><div class="empty">Пока нет закрытых смен</div></div>
+</div>
+<p class="notice">Сверка сравнивает ожидаемую наличность (начальная касса + наличные продажи) с фактической суммой, введённой при закрытии смены. MBank считается отдельно.</p>
+</section>
+<section id="more" class="page">
+<div class="section-title"><h2>Финансы и данные</h2></div>
+<div class="card"><h3 style="margin:0 0 5px">Личные операции</h3><p class="muted">Доходы и расходы отдельно от выручки.</p>
+<label>Тип операции</label><select id="finType"><option value="expense">Расход</option><option value="income">Доход</option></select>
+<label>Сумма, сом</label><input id="finAmount" type="number" min="0" placeholder="0" inputmode="decimal">
+<label>Категория / описание</label><input id="finDesc" placeholder="Например, продукты">
+<button class="primary" style="margin-top:12px" onclick="addFinance()">Добавить операцию</button>
+<div class="row"><span>Личный баланс</span><b id="personalBalance">0 сом</b></div><div id="financeList"></div></div>
+<div class="section-title"><h2>Резервная копия</h2></div>
+<div class="card"><p class="muted">Экспортируй все заказы и личные операции в JSON-файл. Его можно импортировать обратно на этом или другом устройстве.</p><div class="actions"><button class="secondary" onclick="backup()">Экспорт данных</button><button class="secondary" onclick="document.getElementById('restoreFile').click()">Импорт данных</button></div><input class="hidden" id="restoreFile" type="file" accept="application/json" onchange="restore(event)"><button class="secondary danger" style="width:100%;margin-top:12px" onclick="resetData()">Удалить все данные</button></div>
+<p class="notice">Заказы, смены, очередь и личные операции синхронизируются между устройствами после входа.</p>
+</section>
+</main>
+<nav class="tabs">
+<button class="tab active" onclick="showPage('dashboard',this)"><i>＋</i>Продажи</button>
+<button class="tab" onclick="showPage('queue',this)"><i>↕</i>Очередь</button>
+<button class="tab" onclick="showPage('history',this)"><i>▤</i>История</button>
+<button class="tab" onclick="showPage('shiftsPage',this)"><i>▦</i>Смены</button>
+<button class="tab" onclick="showPage('reconcilePage',this)"><i>✓</i>Сверка</button>
+<button class="tab" onclick="showPage('more',this)"><i>•••</i>Ещё</button>
+</nav>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+const SUPABASE_URL="https://qrhpmamtfrjyqtpdmuue.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_bXPr9Y_8WvSRERfPAOaVYw_YFkUsFnI";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let cloudReady=false, syncing=false, syncTimer=null, realtimeChannel=null;
+const PRODUCTS=[
+ {name:'Фруктовый чай',price:350,cat:'Фруктовый чай'},
+ {name:'Лимонад',price:410,cat:'Лимонад'},
+ {name:'Лимонад',price:470,cat:'Лимонад'},
+ {name:'Лимонад',price:490,cat:'Лимонад'},
+ {name:'Bubble Tea 0.5',price:250,cat:'Бабл-ти',bubbleSize:'0.5'},
+ {name:'Bubble Tea 0.7',price:290,cat:'Бабл-ти',bubbleSize:'0.7'},
+ {name:'Тапиока',price:30,cat:'Дополнения'},
+ {name:'Кокос',price:30,cat:'Дополнения'},
+ {name:'Шот эспрессо',price:90,cat:'Дополнения'}
+];
+const BUBBLE_MENU=[
+ {category:'Классические чаи',items:['Персиковый улун','Молочный чай','Молочный манго','Матча','Тайский чай']},
+ {category:'Тропические',items:['Ананас маракуйя','Манго маракуйя','Клубника маракуйя','Апельсин ананас','Ананас клубника','Апельсин клубника','Киви маракуйя']},
+ {category:'Айс ти',items:['Апельсин','Малина','Ананас','Киви']},
+ {category:'Кофейные',items:['Айс латте','Матча латте','Капучино','Латте']},
+ {category:'Смузи',items:['Клубника банан','Бананас','Манго клубника','Манго малина']},
+ {category:'Авторские',items:['Орео','Матча орео','Манго йогурт','Клубника йогурт','Манго матча','Клубника матча']}
+];
+let selectedBubbleSize='0.5', selectedBubblePrice=250;
+function openBubbleMenu(size,price){selectedBubbleSize=size;selectedBubblePrice=price;const modal=document.getElementById('bubbleMenuModal');document.getElementById('bubbleMenuTitle').textContent=`Bubble Tea ${size} л · ${fmt(price)}`;document.getElementById('bubbleMenuGrid').innerHTML=BUBBLE_MENU.map(group=>`<section class="bubble-category"><h3>${group.category}</h3><div class="bubble-flavours">${group.items.map(name=>`<button class="bubble-flavour" onclick="addBubbleFlavour(${JSON.stringify(name).replace(/\"/g,'&quot;')})">${name}<span>Добавить +</span></button>`).join('')}</div></section>`).join('');modal.classList.add('open');modal.setAttribute('aria-hidden','false');}
+function closeBubbleMenu(){const modal=document.getElementById('bubbleMenuModal');modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
+function addBubbleFlavour(name){const product={name:`${name} · ${selectedBubbleSize} л`,price:selectedBubblePrice,cat:'Бабл-ти',qty:1};const found=cart.find(x=>x.name===product.name&&x.price===product.price);if(found)found.qty++;else cart.push(product);renderCart();const count=cart.reduce((s,x)=>s+x.qty,0);document.getElementById('bubbleMenuAdded').textContent=`В заказе: ${count} поз.`;}
+
+let orders=JSON.parse(localStorage.getItem('onet_orders')||'[]');
+let finances=JSON.parse(localStorage.getItem('onet_finances')||'[]');
+let cart=[];let payment='Наличные';
+let shifts=JSON.parse(localStorage.getItem('onet_shifts')||'[]');
+let queueMode=localStorage.getItem('onet_queue_mode')||'time';
+const fmt=n=>Math.round(n).toLocaleString('ru-RU')+' сом';
+const today=()=>new Date().toLocaleDateString('en-CA');
+const persist=()=>{localStorage.setItem('onet_orders',JSON.stringify(orders));localStorage.setItem('onet_finances',JSON.stringify(finances));localStorage.setItem('onet_shifts',JSON.stringify(shifts));localStorage.setItem('onet_queue_mode',queueMode);if(cloudReady){clearTimeout(syncTimer);syncTimer=setTimeout(syncToCloud,350);}};
+function mergeById(localRows,remoteRows){const m=new Map((localRows||[]).map(x=>[String(x.id),x]));(remoteRows||[]).forEach(x=>m.set(String(x.id),x));return [...m.values()];}
+function orderToDb(o){return {id:Number(o.id),date:o.date,time:o.time,items:o.items||[],total:o.total||0,payment:o.payment,received:o.received??null,change:o.change??null,status:o.status||'queue',queueOrder:o.queueOrder??o.id,shiftId:o.shiftId??null,createdAt:o.createdAt??null,note:o.note||null};}
+function shiftToDb(x){return {id:Number(x.id),date:x.date,openedAt:x.openedAt,opening:x.opening||0,closedAt:x.closedAt||null,actual:x.actual??null,expected:x.expected??null,cash:x.cash??null,mbank:x.mbank??null,orderCount:x.orderCount??null};}
+function financeToDb(x){return {id:Number(x.id),type:x.type,amount:x.amount,desc:x.desc,date:x.date};}
+async function syncToCloud(){if(!cloudReady||syncing||orderMutation)return;syncing=true;try{
+ const tasks=[];
+ if(orders.length)tasks.push(supabaseClient.from('orders').upsert(orders.map(orderToDb)));
+ if(shifts.length)tasks.push(supabaseClient.from('shifts').upsert(shifts.map(shiftToDb)));
+ if(finances.length)tasks.push(supabaseClient.from('finances').upsert(finances.map(financeToDb)));
+ tasks.push(supabaseClient.from('app_settings').upsert({setting_key:'queueMode',setting_value:JSON.stringify(queueMode),updated_at:new Date().toISOString()}));
+ const results=await Promise.all(tasks);const err=results.find(x=>x.error)?.error;if(err)throw err;
+ document.getElementById('connectionState').textContent='SUPABASE · СИНХРОНИЗИРОВАНО';
+ }catch(e){console.error('Supabase sync:',e);document.getElementById('connectionState').textContent='ОШИБКА СИНХРОНИЗАЦИИ';}finally{syncing=false;}}
+async function loadCloudData(){const names=['orders','shifts','finances','app_settings'];const results=await Promise.all(names.map(n=>supabaseClient.from(n).select('*')));const bad=results.find(x=>x.error);if(bad)throw bad.error;
+ const [ro,rs,rf,settings]=results;
+ orders=mergeById(orders,ro.data.map(o=>({id:Number(o.id),date:o.date,time:o.time,items:o.items||[],total:Number(o.total)||0,payment:o.payment,received:o.received==null?null:Number(o.received),change:o.change==null?null:Number(o.change),status:o.status,queueOrder:Number(o.queueOrder)||Number(o.id),shiftId:o.shiftId==null?null:Number(o.shiftId),createdAt:o.createdAt,note:o.note||''})));
+ shifts=mergeById(shifts,rs.data.map(x=>({id:Number(x.id),date:x.date,openedAt:x.openedAt,opening:Number(x.opening)||0,closedAt:x.closedAt,actual:x.actual==null?null:Number(x.actual),expected:x.expected==null?null:Number(x.expected),cash:x.cash==null?null:Number(x.cash),mbank:x.mbank==null?null:Number(x.mbank),orderCount:x.orderCount==null?null:Number(x.orderCount)})));
+ finances=mergeById(finances,rf.data.map(x=>({id:Number(x.id),type:x.type,amount:Number(x.amount),desc:x.desc,date:x.date})));
+ const qm=settings.data.find(x=>x.setting_key==='queueMode');if(qm){try{queueMode=typeof qm.setting_value==='string'?qm.setting_value:JSON.parse(qm.setting_value);}catch{queueMode='time';}}
+ localStorage.setItem('onet_orders',JSON.stringify(orders));localStorage.setItem('onet_finances',JSON.stringify(finances));localStorage.setItem('onet_shifts',JSON.stringify(shifts));localStorage.setItem('onet_queue_mode',queueMode);
+ renderAll();await syncToCloud();}
+async function activateCloudSession(){const {data:{session}}=await supabaseClient.auth.getSession();const gate=document.getElementById('authGate');if(!session){cloudReady=false;gate.style.display='flex';document.getElementById('connectionState').textContent='SUPABASE · НЕ ВОЙДЕН';document.getElementById('signOutBtn').style.display='none';return;}
+ gate.style.display='none';document.getElementById('connectionState').textContent='SUPABASE · ПОДКЛЮЧЕНИЕ…';document.getElementById('signOutBtn').style.display='inline-block';
+ try{await loadCloudData();cloudReady=true;await syncToCloud();if(realtimeChannel)supabaseClient.removeChannel(realtimeChannel);realtimeChannel=supabaseClient.channel('onet-everyone').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>refreshCloud()).on('postgres_changes',{event:'*',schema:'public',table:'shifts'},()=>refreshCloud()).on('postgres_changes',{event:'*',schema:'public',table:'finances'},()=>refreshCloud()).on('postgres_changes',{event:'*',schema:'public',table:'app_settings'},()=>refreshCloud()).subscribe();document.getElementById('connectionState').textContent='SUPABASE · НА СВЯЗИ';if(window.oneteaCloudPoll)clearInterval(window.oneteaCloudPoll);window.oneteaCloudPoll=setInterval(refreshCloud,8000);}
+ catch(e){cloudReady=false;document.getElementById('authMessage').textContent='Ошибка подключения: '+(e.message||e);gate.style.display='flex';document.getElementById('connectionState').textContent='ОШИБКА ПОДКЛЮЧЕНИЯ';}}
+let refreshing=false;let orderMutation=false;async function refreshCloud(){if(!cloudReady||refreshing||orderMutation)return;refreshing=true;try{const names=['orders','shifts','finances','app_settings'];const r=await Promise.all(names.map(n=>supabaseClient.from(n).select('*')));if(r.some(x=>x.error))return;orders=r[0].data.map(o=>({id:Number(o.id),date:o.date,time:o.time,items:o.items||[],total:Number(o.total)||0,payment:o.payment,received:o.received==null?null:Number(o.received),change:o.change==null?null:Number(o.change),status:o.status,queueOrder:Number(o.queueOrder)||Number(o.id),shiftId:o.shiftId==null?null:Number(o.shiftId),createdAt:o.createdAt,note:o.note||''}));shifts=r[1].data.map(x=>({id:Number(x.id),date:x.date,openedAt:x.openedAt,opening:Number(x.opening)||0,closedAt:x.closedAt,actual:x.actual,expected:x.expected,cash:x.cash,mbank:x.mbank,orderCount:x.orderCount}));finances=r[2].data.map(x=>({id:Number(x.id),type:x.type,amount:Number(x.amount),desc:x.desc,date:x.date}));const setting=r[3].data.find(x=>x.setting_key==='queueMode');if(setting){try{queueMode=typeof setting.setting_value==='string'?setting.setting_value:JSON.parse(setting.setting_value);}catch{queueMode='time';}}localStorage.setItem('onet_orders',JSON.stringify(orders));localStorage.setItem('onet_shifts',JSON.stringify(shifts));localStorage.setItem('onet_finances',JSON.stringify(finances));renderAll();}finally{refreshing=false;}}
+async function signInEmployee(){try{const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;if(!email||!password){document.getElementById('authMessage').textContent='Введи email и пароль сотрудника.';return;}document.getElementById('authMessage').textContent='Входим…';const {error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){document.getElementById('authMessage').textContent='Не удалось войти: '+error.message;return;}await activateCloudSession();}catch(e){document.getElementById('authMessage').textContent='Ошибка входа: '+(e.message||e);}}
+async function signOutEmployee(){cloudReady=false;await supabaseClient.auth.signOut();if(realtimeChannel)supabaseClient.removeChannel(realtimeChannel);activateCloudSession();}
+supabaseClient.auth.onAuthStateChange((_event,session)=>{if(session)setTimeout(activateCloudSession,0);else{cloudReady=false;document.getElementById('authGate').style.display='flex';}});
+const activeShift=()=>shifts.find(x=>!x.closedAt);
+const stamp=()=>new Date().toISOString();
+function showPage(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderAll();}
+function addProduct(i){const p=PRODUCTS[i];if(p.bubbleSize){openBubbleMenu(p.bubbleSize,p.price);return;}let found=cart.find(x=>x.name===p.name&&x.price===p.price);if(found)found.qty++;else cart.push({...p,qty:1});renderCart();}
+function changeQty(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart();}
+function clearCart(){cart=[];renderCart();}
+function cartSum(){return cart.reduce((s,x)=>s+x.price*x.qty,0);}
+function renderCart(){const box=document.getElementById('cartItems');box.innerHTML=cart.length?cart.map((x,i)=>`<div class="cartline"><div><b>${x.name}</b><div class="row-sub">${fmt(x.price)} за шт.</div></div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b>${x.qty}</b><button onclick="changeQty(${i},1)">+</button><b>${fmt(x.price*x.qty)}</b></div></div>`).join(''):'<div class="empty">Выбери напитки выше</div>';document.getElementById('cartTotal').textContent=fmt(cartSum());document.getElementById('cashBtn').textContent=payment==='Наличные'?'Наличные ✓':'Наличные';document.getElementById('mbankBtn').textContent=payment==='MBank'?'MBank ✓':'MBank';document.getElementById('cashTenderWrap').classList.toggle('hidden',payment!=='Наличные');renderChange();}
+function renderChange(){const total=cartSum(),raw=document.getElementById('cashTender').value,received=raw===''?0:Number(raw);document.getElementById('changeDue').textContent=fmt(Math.max(0,received-total));}
+function setPay(p){payment=p;renderCart();}
+function saveOrder(){if(!activeShift()){alert('Сначала открой смену.');return;}if(!cart.length){alert('Сначала добавь хотя бы одну позицию.');return;}const total=cartSum(),received=payment==='Наличные'?(document.getElementById('cashTender').value===''?total:Number(document.getElementById('cashTender').value)):null;if(payment==='Наличные'&&received<total){alert('Полученная сумма меньше стоимости заказа.');return;}orders.push({id:Date.now(),date:today(),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),items:cart.map(x=>({...x})),total,payment,received,change:payment==='Наличные'?received-total:null,status:'queue',queueOrder:Date.now(),shiftId:activeShift().id,createdAt:stamp(),note:document.getElementById('orderNote').value.trim()});persist();clearCart();document.getElementById('cashTender').value='';document.getElementById('orderNote').value='';renderAll();alert('Заказ сохранён.');}
+function dayOrders(d){return orders.filter(o=>o.date===d);}
+function sum(a){return a.reduce((s,x)=>s+x.total,0);}
+function renderDashboard(){let a=dayOrders(today()),cash=sum(a.filter(x=>x.payment==='Наличные')),mb=sum(a.filter(x=>x.payment==='MBank'));document.getElementById('todayLabel').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});document.getElementById('todayTotal').textContent=fmt(sum(a));document.getElementById('cashTotal').textContent=fmt(cash);document.getElementById('mbankTotal').textContent=fmt(mb);document.getElementById('orderCount').textContent=a.length;document.getElementById('avgCheck').textContent=fmt(a.length?sum(a)/a.length:0);}
+function statusLabel(o){return o.status==='done'?'Выполнен':o.status==='failed'?'Не выполнен':'В очереди';}
+function renderHistory(){let d=document.getElementById('historyDate').value;let a=orders.filter(o=>!d||o.date===d).slice().sort((x,y)=>y.id-x.id);document.getElementById('historyList').innerHTML=a.length?a.map(o=>`<div class="row"><div style="min-width:0"><div class="row-title">#${String(o.id).slice(-5)} · ${o.items.map(x=>`${x.name} ×${x.qty}`).join(', ')}</div><div class="row-sub">${o.date} · ${o.time} · ${o.payment}${o.payment==='Наличные'&&o.received!=null?' · Получено '+fmt(o.received)+' · Сдача '+fmt(o.change||0):''}${o.note?' · '+o.note:''}</div><div class="actions" style="margin-top:7px"><select onchange="setOrderStatus(${o.id},this.value)" style="width:auto;padding:7px;font-size:11px"><option value="queue" ${(!o.status||o.status==='queue')?'selected':''}>В очереди</option><option value="done" ${o.status==='done'?'selected':''}>Выполнен</option><option value="failed" ${o.status==='failed'?'selected':''}>Не выполнен</option></select><button class="secondary danger" style="padding:6px 9px;font-size:11px" onclick="deleteOrder(${o.id})">Удалить</button></div></div><div class="money">${fmt(o.total)}</div></div>`).join(''):'<div class="empty">Заказов пока нет</div>';}
+async function setOrderStatus(id,status){
+ const o=orders.find(x=>x.id===id);if(!o)return;
+ const previous=o.status;o.status=status;renderAll();
+ if(cloudReady){orderMutation=true;try{while(syncing)await new Promise(r=>setTimeout(r,40));const {error}=await supabaseClient.from('orders').upsert(orderToDb(o));if(error)throw error;}
+  catch(e){o.status=previous;renderAll();alert('Не удалось сохранить статус заказа в облаке: '+(e.message||e));return;}finally{orderMutation=false;}
+ }
+ persist();
+}
+function setQueueMode(mode){queueMode=mode;persist();renderQueue();}
+function moveQueue(id,delta){let a=orders.filter(o=>(!o.status||o.status==='queue')).sort((x,y)=>(x.queueOrder||x.id)-(y.queueOrder||y.id));let i=a.findIndex(o=>o.id===id),j=i+delta;if(i<0||j<0||j>=a.length)return;let tmp=a[i].queueOrder||a[i].id;a[i].queueOrder=a[j].queueOrder||a[j].id;a[j].queueOrder=tmp;persist();renderQueue();}
+function renderQueue(){let a=orders.filter(o=>(!o.status||o.status==='queue')).sort((x,y)=>queueMode==='time'?x.id-y.id:(x.queueOrder||x.id)-(y.queueOrder||y.id));document.getElementById('queueCount').textContent=a.length+' в очереди';document.getElementById('queueList').innerHTML=a.length?a.map((o,i)=>`<div class="row"><div><b>#${String(o.id).slice(-5)} · ${o.items.map(x=>x.name+' ×'+x.qty).join(', ')}</b><div class="row-sub">${o.time} · ${fmt(o.total)} · ${o.payment}</div><button class="secondary" style="margin-top:6px;padding:6px 9px;font-size:11px" onclick="setOrderStatus(${o.id},'done')">Отметить выполненным</button></div><div class="actions" style="flex-direction:column;max-width:46px"><button class="secondary" onclick="moveQueue(${o.id},-1)" ${i===0?'disabled':''}>↑</button><button class="secondary" onclick="moveQueue(${o.id},1)" ${i===a.length-1?'disabled':''}>↓</button></div></div>`).join(''):'<div class="empty">Очередь пуста</div>';}
+function openShift(){if(activeShift()){alert('Смена уже открыта.');return;}let opening=Number(prompt('Начальная сумма наличных в кассе, сом:','0'));if(!Number.isFinite(opening)||opening<0)return;shifts.push({id:Date.now(),date:today(),openedAt:stamp(),opening,closedAt:null});persist();renderAll();}
+function closeShift(){let sh=activeShift();if(!sh)return;let related=orders.filter(o=>o.shiftId===sh.id),cash=related.filter(o=>o.payment==='Наличные').reduce((s,o)=>s+o.total,0),mb=related.filter(o=>o.payment==='MBank').reduce((s,o)=>s+o.total,0),expected=sh.opening+cash;let actualRaw=prompt(`Итог смены\nВыручка: ${fmt(cash+mb)}\nНаличные продажи: ${fmt(cash)}\nMBank: ${fmt(mb)}\nОжидается наличными в кассе: ${fmt(expected)}\n\nВведи фактическую сумму наличных в кассе:`);if(actualRaw===null)return;let actual=Number(actualRaw);if(!Number.isFinite(actual)||actual<0){alert('Введи корректную сумму.');return;}if(!confirm('Подтвердить закрытие смены?'))return;sh.closedAt=stamp();sh.actual=actual;sh.expected=expected;sh.cash=cash;sh.mbank=mb;sh.orderCount=related.length;persist();renderAll();}
+function renderShift(){let sh=activeShift();document.getElementById('shiftStatus').textContent=sh?'Смена открыта':'Смена закрыта';document.getElementById('shiftStateText').textContent=sh?'Открыта':'Не открыта';document.getElementById('shiftOpening').textContent=fmt(sh?sh.opening:0);document.getElementById('shiftStarted').textContent=sh?new Date(sh.openedAt).toLocaleString('ru-RU'):'—';document.getElementById('openShiftBtn').disabled=!!sh;document.getElementById('closeShiftBtn').disabled=!sh;}
+async function deleteOrder(id){
+ if(!confirm('Удалить этот заказ?'))return;
+ const previous=orders;
+ orders=orders.filter(o=>o.id!==id);renderAll();
+ if(cloudReady){orderMutation=true;try{while(syncing)await new Promise(r=>setTimeout(r,40));const {error}=await supabaseClient.from('orders').delete().eq('id',id);if(error)throw error;}
+  catch(e){orders=previous;renderAll();alert('Не удалось удалить заказ из облака: '+(e.message||e));return;}finally{orderMutation=false;}
+ }
+ persist();
+}
+let expandedShiftId=null;
+function closedShifts(){return shifts.filter(sh=>!!sh.closedAt).slice().sort((a,b)=>new Date(b.closedAt)-new Date(a.closedAt));}
+function shiftOrders(sh){return orders.filter(o=>Number(o.shiftId)===Number(sh.id)).slice().sort((a,b)=>String(a.time).localeCompare(String(b.time)));}
+function shiftCashSummary(sh){const list=shiftOrders(sh);const calculatedCash=list.filter(o=>o.payment==='Наличные').reduce((v,o)=>v+Number(o.total||0),0);const calculatedMbank=list.filter(o=>o.payment==='MBank').reduce((v,o)=>v+Number(o.total||0),0);const cash=sh.cash==null?calculatedCash:Number(sh.cash);const mbank=sh.mbank==null?calculatedMbank:Number(sh.mbank);const expected=sh.expected==null?Number(sh.opening||0)+cash:Number(sh.expected);const actual=sh.actual==null?null:Number(sh.actual);return {list,cash,mbank,expected,actual,diff:actual==null?null:actual-expected,total:cash+mbank,orderCount:sh.orderCount==null?list.length:Number(sh.orderCount)};}
+function renderShiftHistory(){const host=document.getElementById('shiftHistoryList');if(!host)return;const filter=document.getElementById('shiftHistoryDate')?.value||'';const list=closedShifts().filter(sh=>!filter||sh.date===filter);host.innerHTML=list.length?list.map(sh=>{const z=shiftCashSummary(sh),opened=new Date(sh.openedAt).toLocaleString('ru-RU'),closed=new Date(sh.closedAt).toLocaleString('ru-RU'),expanded=Number(expandedShiftId)===Number(sh.id);const diff=z.diff;return `<div class="card shift-card"><div class="row"><div><b>${sh.date}</b><div class="row-sub">${opened} — ${closed}</div></div><b>${fmt(z.total)}</b></div><div class="row"><span>Наличные · MBank</span><b>${fmt(z.cash)} · ${fmt(z.mbank)}</b></div><div class="row"><span>Заказов на момент закрытия</span><b>${z.orderCount}</b></div><div class="row"><span>Сверка кассы</span><b class="${diff===null?'':Math.abs(diff)<0.005?'reconcile-good':'reconcile-bad'}">${diff===null?'Нет данных':diff===0?'Сошлась':(diff>0?'+':'')+fmt(diff)}</b></div><button class="secondary" style="width:100%;margin-top:10px" onclick="toggleShiftDetails(${sh.id})">${expanded?'Скрыть заказы':'Посмотреть заказы ('+z.list.length+')'}</button>${expanded?`<div class="shift-orders">${z.list.length?z.list.map(o=>`<div class="shift-order"><div><b>#${String(o.id).slice(-5)} · ${o.time}</b><div class="row-sub">${(o.items||[]).map(x=>`${x.name} ×${x.qty}`).join(', ')} · ${o.payment} · ${statusLabel(o)}</div></div><b>${fmt(o.total)}</b></div>`).join(''):'<div class="empty">У этой смены нет заказов</div>'}</div>`:''}</div>`;}).join(''):'<div class="card empty">Закрытых смен пока нет</div>';}
+function toggleShiftDetails(id){expandedShiftId=Number(expandedShiftId)===Number(id)?null:Number(id);renderShiftHistory();}
+function renderReconciliation(){const select=document.getElementById('reconcileShiftSelect'),host=document.getElementById('reconcileContent');if(!select||!host)return;const list=closedShifts();if(!list.length){select.innerHTML='<option value="">Нет закрытых смен</option>';host.innerHTML='<div class="empty">Пока нет закрытых смен для сверки</div>';return;}const previous=select.value;select.innerHTML=list.map(sh=>`<option value="${sh.id}">${sh.date} · ${new Date(sh.closedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</option>`).join('');const chosen=list.find(sh=>String(sh.id)===previous)||list[0];select.value=String(chosen.id);const z=shiftCashSummary(chosen),difference=z.diff;const diffText=difference===null?'Не указана фактическая касса':Math.abs(difference)<0.005?'Касса сошлась':difference>0?`Излишек: ${fmt(difference)}`:`Недостача: ${fmt(Math.abs(difference))}`;host.innerHTML=`<div style="padding:14px 0 8px"><div class="muted">ДАТА СМЕНЫ</div><b>${chosen.date}</b><div class="row"><span>Начальная касса</span><b>${fmt(chosen.opening||0)}</b></div><div class="row"><span>Наличные продажи</span><b>${fmt(z.cash)}</b></div><div class="row"><span>Ожидается в кассе</span><b>${fmt(z.expected)}</b></div><div class="row"><span>Фактически в кассе</span><b>${chosen.actual==null?'—':fmt(z.actual)}</b></div><div class="reconcile-diff ${difference===null?'':Math.abs(difference)<0.005?'reconcile-good':'reconcile-bad'}">${diffText}</div><hr style="border:0;border-top:1px solid var(--line)"><div class="row"><span>MBank (отдельно)</span><b>${fmt(z.mbank)}</b></div><div class="row"><span>Общая выручка</span><b>${fmt(z.total)}</b></div><div class="row"><span>Количество заказов при закрытии</span><b>${z.orderCount}</b></div><div class="row"><span>Заказов наличными</span><b>${z.list.filter(o=>o.payment==='Наличные').length}</b></div><div class="row"><span>Заказов MBank</span><b>${z.list.filter(o=>o.payment==='MBank').length}</b></div><button class="secondary" style="width:100%;margin-top:12px" onclick="expandedShiftId=${Number(chosen.id)};showPage('shiftsPage',document.querySelectorAll('.tab')[3]);">Открыть заказы этой смены</button></div>`;}
+function addFinance(){let amount=Number(document.getElementById('finAmount').value),desc=document.getElementById('finDesc').value.trim();if(!(amount>0)||!desc){alert('Укажи сумму и описание.');return;}finances.push({id:Date.now(),type:document.getElementById('finType').value,amount,desc,date:today()});persist();document.getElementById('finAmount').value='';document.getElementById('finDesc').value='';renderFinance();}
+function renderFinance(){let balance=finances.reduce((s,x)=>s+(x.type==='income'?x.amount:-x.amount),0);document.getElementById('personalBalance').textContent=fmt(balance);document.getElementById('financeList').innerHTML=finances.slice().reverse().map(x=>`<div class="row"><div><b>${x.desc}</b><div class="row-sub">${x.date} · ${x.type==='income'?'Доход':'Расход'}</div></div><b style="color:${x.type==='income'?'var(--green)':'var(--red)'}">${x.type==='income'?'+':'−'}${fmt(x.amount)}</b></div>`).join('')||'<div class="empty">Операций пока нет</div>';}
+function renderAll(){renderDashboard();renderHistory();renderQueue();renderFinance();renderCart();renderShift();renderShiftHistory();renderReconciliation();}
+function backup(){let blob=new Blob([JSON.stringify({orders,finances,shifts,queueMode},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='onet ea-backup.json'.replace(' ','');a.click();URL.revokeObjectURL(a.href);}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.orders)||!Array.isArray(d.finances))throw 0;if(!confirm('Импорт заменит текущие данные. Продолжить?'))return;orders=d.orders;finances=d.finances;shifts=Array.isArray(d.shifts)?d.shifts:[];queueMode=d.queueMode||'time';persist();renderAll();alert('Данные импортированы.');}catch(_){alert('Не удалось прочитать файл резервной копии.');}};r.readAsText(f);e.target.value='';}
+function resetData(){if(confirm('Точно удалить все заказы и личные операции? Это нельзя отменить.')){orders=[];finances=[];shifts=[];persist();renderAll();}}
+function init(){document.getElementById('quickProducts').innerHTML=PRODUCTS.map((p,i)=>`<button class="product" onclick="addProduct(${i})"><b>${p.name}</b><small>${fmt(p.price)} · ${p.bubbleSize?'Выбрать вкус →':'Добавить +'}</small></button>`).join('');renderAll();}
+init();
+activateCloudSession();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+</script>
+</body></html>
