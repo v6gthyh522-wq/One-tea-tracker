@@ -1,9 +1,0 @@
-{
-  "name": "ONETEA — Учёт продаж",
-  "short_name": "ONETEA",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#f5f3ef",
-  "theme_color": "#171717",
-  "lang": "ru"
-}
